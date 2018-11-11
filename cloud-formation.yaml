@@ -41,7 +41,7 @@ Resources:
         ToPort: '22'
         CidrIp: '0.0.0.0/0'
 
-  AWS-Tensorflow-Master:
+  AWSTensorflowMaster:
     Type: 'AWS::EC2::Instance'
     Properties:
       ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', AMI]
@@ -54,7 +54,7 @@ Resources:
       - Key: Name
         Value: 'AWS-Tensorflow-Master'
 
-  AWS-Tensorflow-Slave:
+  AWSTensorflowSlave:
     Type: 'AWS::EC2::Instance'
     Properties:
       ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', AMI]
@@ -68,10 +68,10 @@ Resources:
         Value: 'AWS-Tensorflow-Slave'
 
 Outputs:
-  PublicName(AWS-Tensorflow-Master):
-    Value: !Sub ${AWS-Tensorflow-Master.PublicDnsName}
+  PublicNameMaster:
+    Value: !Sub ${AWSTensorflowMaster.PublicDnsName}
     Description: 'Public name of EC2 Instance (connect via SSH as user ubuntu)'
 
-  PublicName(AWS-Tensorflow-Slave):
-    Value: !Sub ${AWS-Tensorflow-Slave.PublicDnsName}
+  PublicNameSlave:
+    Value: !Sub ${AWSTensorflowSlave.PublicDnsName}
     Description: 'Public name of EC2 Instance (connect via SSH as user ubuntu)'
