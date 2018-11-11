@@ -1,0 +1,77 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS Tensorflow Cluster Formation'
+
+Parameters:
+  KeyName:
+    Description: 'Key Pair name'
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: mykey
+  VPC:
+    Description: 'Just select the one and only default VPC'
+    Type: 'AWS::EC2::VPC::Id'
+  Subnet:
+    Description: 'Just select one of the available subnets'
+    Type: 'AWS::EC2::Subnet::Id'
+
+Mappings:
+  RegionMap:
+    'ap-northeast-2':
+      AMI: 'ami-01e0d9be71d5a4523'
+
+Resources:
+
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Control Traffics'
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: 'AWS Tensorflow Security Group'
+      # allowing inbound ICMP traffic
+      SecurityGroupIngress:
+      - IpProtocol: icmp
+        FromPort: '-1'
+        ToPort: '-1'
+        CidrIp: '0.0.0.0/0'
+      # allowing inbound SSH traffic
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: '0.0.0.0/0'
+
+  AWS-Tensorflow-Master:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', AMI]
+      InstanceType: 'p2.xlarge'
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+      - !Ref SecurityGroup
+      SubnetId: !Ref Subnet
+      Tags:
+      - Key: Name
+        Value: 'AWS-Tensorflow-Master'
+
+  AWS-Tensorflow-Slave:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', AMI]
+      InstanceType: 'p2.xlarge'
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+      - !Ref SecurityGroup
+      SubnetId: !Ref Subnet
+      Tags:
+      - Key: Name
+        Value: 'AWS-Tensorflow-Slave'
+
+Outputs:
+  PublicName(AWS-Tensorflow-Master):
+    Value: !Sub ${AWS-Tensorflow-Master.PublicDnsName}
+    Description: 'Public name of EC2 Instance (connect via SSH as user ubuntu)'
+
+  PublicName(AWS-Tensorflow-Slave):
+    Value: !Sub ${AWS-Tensorflow-Slave.PublicDnsName}
+    Description: 'Public name of EC2 Instance (connect via SSH as user ubuntu)'
